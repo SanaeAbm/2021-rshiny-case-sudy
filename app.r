@@ -4,7 +4,13 @@ library(gapminder)
 #Load tidyverse to filter data:
 library(tidyverse)
 
+library(magrittr)
+
+
+
 #Add static variable:
+#Create the factor year before filtering:
+gapminder %<>% mutate_at("year", as.factor)
 gapminder_years = gapminder %>% select(year) %>% unique %>% arrange
 
 #Create a panel
@@ -17,7 +23,7 @@ dataPanel <- tabPanel("Data",
                         choices = gapminder_years,
                         #introduce a default selection: the first year
                         #NEVER EMPTY APPS
-                        selected =gapminder_years
+                        selected ="1952"
                       ),
                       tableOutput("data")
 )
@@ -47,11 +53,9 @@ server <- function(input, output) {
   output$data <- renderTable(gapminder_year());
   output$plot <- renderPlot(
     #First 10 data; filter by year; taking variable population
-    barplot(head(gapminder_year()%>% pull(pop)),
-            main=paste("Population in",input$selYear), horiz=FALSE,
-            names.arg= head(gapminder_year() %>% pull(country))
+    ggplot(data=head(gapminder_year()), aes(x=country, y=pop, fill=year))
+    + geom_bar(stat="identity", position=position_dodge())
     )
-  )
 }
 
 
