@@ -20,14 +20,32 @@ dataPanel <- tabPanel("Data",
                       tableOutput("data")
 )
 
+#Create plot panel:
+plotPanel <- tabPanel("Plot",
+                      plotOutput("plot")
+)
+
+plotPanel <- tabPanel("Plot",
+                      plotOutput("plot")
+)
+
 # Define UI for application that draws a histogram
 ui <- navbarPage("shiny App",
-                dataPanel
+                dataPanel,
+                #add plot panel:
+                plotPanel
                 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   output$data <- renderTable(gapminder %>% filter(year %in% input$selYear))
+  output$plot <- renderPlot(
+    #First 10 data; filter by year; taking variable population
+    barplot(head(gapminder %>% filter(year %in% input$selYear) %>% pull(pop)),
+            main=paste("Population in",input$selYear), horiz=FALSE,
+            names.arg= head(gapminder %>% filter(year %in% input$selYear) %>% pull(country))
+    )
+  )
 }
 
 # Run the application 
